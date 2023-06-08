@@ -1,0 +1,37 @@
+{
+  "name": "next-supabase",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^1.13.1",
+    "@supabase/ui": "^0.27.2",
+    "@tailwindcss/typography": "^0.4.1",
+    "axios": "^1.4.0",
+    "d3": "^7.8.4",
+    "dotenv": "^16.1.4",
+    "easymde": "^2.15.0",
+    "isomorphic-unfetch": "^4.0.2",
+    "moment": "^2.29.4",
+    "next": "10.2.3",
+    "node-fetch": "^3.3.1",
+    "openai": "^3.2.1",
+    "pdfjs-dist": "^3.7.107",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-markdown": "^6.0.2",
+    "react-pdf": "^7.1.1",
+    "react-simplemde-editor": "^5.0.1",
+    "recharts": "^2.6.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.2.6",
+    "postcss": "^8.3.0",
+    "tailwindcss": "^2.1.4"
+  }
+}
