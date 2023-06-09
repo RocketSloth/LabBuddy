@@ -1,5 +1,5 @@
 {
-  "name": "next-supabase",
+  "name": "lab-buddy",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,7 +27,9 @@
     "react-pdf": "^7.1.1",
     "react-simplemde-editor": "^5.0.1",
     "recharts": "^2.6.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "@types/react": "^16",
+    "prop-types": "^15.6.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.6",
