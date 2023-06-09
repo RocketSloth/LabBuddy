@@ -17,24 +17,25 @@ export default function MyLabs() {
 
   useEffect(() => {
     if (!analysisId) return;  // Don't do anything if we don't have an analysis ID yet
-
+  
     const intervalId = setInterval(async () => {
       const { data, error } = await supabase
         .from('analyses')
         .select('result, status')
         .eq('id', analysisId)
         .single();
-
+  
       if (error || !data) {
         console.error('Error fetching analysis result:', error);
       } else if (data.status === 'complete') {
         setAnalysis(data.result);  // Save the result to state when it's ready
+        setLoading(false);  // Hide the loading message
         clearInterval(intervalId);  // Stop polling
       }
     }, 5000);  // Poll every 5 seconds
-
+  
     return () => clearInterval(intervalId);  // Clean up the interval on unmount
-  }, [analysisId]);  // Run this effect when analysisId changes
+  }, [analysisId]);  // Run this effect when analysisId changes  
 
   async function fetchLabs() {
     try {
