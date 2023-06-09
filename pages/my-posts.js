@@ -46,6 +46,15 @@ export default function MyLabs() {
     return filterTerms.some(term => optionValue.toLowerCase().includes(term.toLowerCase()));
   });  
 
+  async function fetchAnalysis(id) {
+    const { data, error } = await supabase
+      .from('analyses')
+      .select('result')
+      .eq('id', id);
+    if (error) throw error;
+    return data[0].result;
+  }
+  
   async function requestAnalysis() {
     const filteredTests = filteredLabs.map(lab => `${lab.test_type}: ${lab.test_result}`).join(', ');
     console.log("Filtered tests: ", filteredTests);  // Log the filtered tests
@@ -65,8 +74,15 @@ export default function MyLabs() {
       }
   
       const data = await response.json();
-      console.log("Data: ", data);  // Log the parsed response data
-      setAnalysis(data.analysis);
+      const id = data.id;
+  
+      // Poll for the result
+      let result;
+      while (!result) {
+        await new Promise(resolve => setTimeout(resolve, 5000));  // Wait 5 seconds between each check
+        result = await fetchAnalysis(id);
+      }
+      setAnalysis(result);
     } catch (error) {
       console.error("Error: ", error);  // Log any errors
     } finally {

@@ -1,4 +1,6 @@
 const { Configuration, OpenAIApi } = require('openai');
+import { supabase } from '../../api';
+
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +12,7 @@ async function getCompletion(filteredTests) {
 
   try {
     const completion = await openai.createCompletion({
-      model: 'gpt-4',
+      model: 'text-davinci-003',
       prompt: prompt,
       max_tokens: 250,
       top_p: 0.1,
@@ -27,24 +29,40 @@ async function getCompletion(filteredTests) {
   }
 }
 
-async function performAnalysis(filteredTests) {
+async function performAnalysis(filteredTests, id) {
   const completion = await getCompletion(filteredTests);
   const aiResponse = completion.data.choices[0].text.trim();
 
-  return aiResponse;
+  // Save the result to the database
+  await supabase
+    .from('analyses')
+    .update({ result: aiResponse })
+    .eq('id', id);
 }
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const filteredTests = req.body.filteredTests;
+    const userId = req.body.userId;  // Get the user's ID from the request body
     try {
-      const analysis = await performAnalysis(filteredTests);
-      res.status(200).json({ analysis });
+      // Create a new analysis record and get its ID
+      const { data, error } = await supabase
+        .from('analyses')
+        .insert({ status: 'processing', user_id: userId });  // Include the user's ID in the new analysis record
+      if (error) throw error;
+      const id = data[0].id;
+
+      // Start the analysis
+      performAnalysis(filteredTests, id);
+
+      // Respond with the ID
+      res.status(200).json({ id });
     } catch (err) {
-      console.error('Error analyzing test results:', err);
-      res.status(500).json({ error: 'Error analyzing test results' });
+      console.error('Error starting analysis:', err);
+      res.status(500).json({ error: 'Error starting analysis' });
     }
   } else {
     res.status(405).json({ error: 'Method Not Allowed' });
   }
 }
+
