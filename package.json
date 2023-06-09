@@ -1,12 +1,8 @@
 {
   "name": "lab-buddy",
   "version": "1.0.1",
-  "description": "LabBuddy",
-  "main": "index.js",
+  "description": "lab-buddy",
   "private": true,
-  "engines": {
-    "node": "16.x"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -22,11 +18,11 @@
     "easymde": "^2.15.0",
     "isomorphic-unfetch": "^4.0.2",
     "moment": "^2.29.4",
-    "next": "10.2.3",
+    "next": "13.4.4",
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-markdown": "^6.0.2",
     "react-pdf": "^7.1.1",
     "react-simplemde-editor": "^5.0.1",
