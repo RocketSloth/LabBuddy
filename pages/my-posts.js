@@ -9,10 +9,32 @@ export default function MyLabs() {
   const [filterOption, setFilterOption] = useState('test_type');
   const [filterTerms, setFilterTerms] = useState(['']);
   const [analysis, setAnalysis] = useState(null);
-  
+  const [analysisId, setAnalysisId] = useState(null);
+
   useEffect(() => {
     fetchLabs();
   }, []);
+
+  useEffect(() => {
+    if (!analysisId) return;  // Don't do anything if we don't have an analysis ID yet
+
+    const intervalId = setInterval(async () => {
+      const { data, error } = await supabase
+        .from('analyses')
+        .select('result, status')
+        .eq('id', analysisId)
+        .single();
+
+      if (error || !data) {
+        console.error('Error fetching analysis result:', error);
+      } else if (data.status === 'complete') {
+        setAnalysis(data.result);  // Save the result to state when it's ready
+        clearInterval(intervalId);  // Stop polling
+      }
+    }, 5000);  // Poll every 5 seconds
+
+    return () => clearInterval(intervalId);  // Clean up the interval on unmount
+  }, [analysisId]);  // Run this effect when analysisId changes
 
   async function fetchLabs() {
     try {
@@ -56,6 +78,7 @@ export default function MyLabs() {
   }
   
   async function requestAnalysis() {
+    const user = supabase.auth.user();
     const filteredTests = filteredLabs.map(lab => `${lab.test_type}: ${lab.test_result}`).join(', ');
     console.log("Filtered tests: ", filteredTests);  // Log the filtered tests
   
@@ -63,32 +86,19 @@ export default function MyLabs() {
       setLoading(true);
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filteredTests }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filteredTests, userId: user.id }),  // Send the user ID with the request
       });
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(response.statusText);
   
-      const data = await response.json();
-      const id = data.id;
-  
-      // Poll for the result
-      let result;
-      while (!result) {
-        await new Promise(resolve => setTimeout(resolve, 5000));  // Wait 5 seconds between each check
-        result = await fetchAnalysis(id);
-      }
-      setAnalysis(result);
+      const { id } = await response.json();
+      setAnalysisId(id);  // Save the analysis ID to state
     } catch (error) {
-      console.error("Error: ", error);  // Log any errors
-    } finally {
-      setLoading(false);
+      console.error('Error starting analysis:', error);
     }
   }
+  
   
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;

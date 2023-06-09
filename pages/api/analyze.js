@@ -36,19 +36,18 @@ async function performAnalysis(filteredTests, id) {
   // Save the result to the database
   await supabase
     .from('analyses')
-    .update({ result: aiResponse })
+    .update({ result: aiResponse, status: 'complete' })  // Update status to 'complete'
     .eq('id', id);
 }
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const filteredTests = req.body.filteredTests;
-    const userId = req.body.userId;  // Get the user's ID from the request body
+    const { filteredTests, userId } = req.body;  // Add userId here
     try {
       // Create a new analysis record and get its ID
       const { data, error } = await supabase
         .from('analyses')
-        .insert({ status: 'processing', user_id: userId });  // Include the user's ID in the new analysis record
+        .insert({ status: 'processing', user_id: userId });  // Save the user_id with the analysis
       if (error) throw error;
       const id = data[0].id;
 
