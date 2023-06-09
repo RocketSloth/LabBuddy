@@ -8,11 +8,11 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getCompletion(filteredTests) {
-  const prompt = `I have the following lab test results: ${filteredTests}. Act as a doctor and provide analysis and recommendations based on the given blood test results.`;
+  const prompt = `I have the following lab test results: ${filteredTests}. Only reply with the name of the test and if the result is within rang or not.`;
 
   try {
     const completion = await openai.createCompletion({
-      model: 'text-davinci-003',
+      model: 'gpt-3.5-turbo-0301',
       prompt: prompt,
       max_tokens: 250,
       top_p: 0.1,
