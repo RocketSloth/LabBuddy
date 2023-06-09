@@ -1,6 +1,8 @@
 {
   "name": "lab-buddy",
   "version": "1.0.1",
+  "description": "LabBuddy for tracking your health",
+  "main": "index.js",
   "private": true,
   "engines": {
     "node": "18.x"
