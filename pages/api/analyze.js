@@ -8,7 +8,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getCompletion(filteredTests) {
-  const prompt = `I have the following lab test results: ${filteredTests}. Act as a doctor and provide analysis and recommendations based on the given blood test results. analyze all the lab results and provide me with an interpretation of what all the lab results mean as well as any concerning trends or potentially dangerous results. Then make some recommendations on how I can change the trending patterns for the better. Also, if any potentially dangerous levels or trends are detected, provide me with some instructions on how I can talk to my doctor about my concerns.`;
+  const prompt = `I have the following lab test results: ${filteredTests}. Act as a doctor and provide analysis and recommendations based on the given blood test results.`;
 
   try {
     const completion = await openai.createCompletion({
