@@ -31,6 +31,11 @@ async function getCompletion(filteredTests) {
 
 async function performAnalysis(filteredTests, id) {
   const completion = await getCompletion(filteredTests);
+  if (!completion || !completion.data || !completion.data.choices || !completion.data.choices[0] || !completion.data.choices[0].text) {
+    console.error('Error in getCompletion:', completion);
+    // Handle the error here...
+    return;
+  }
   const aiResponse = completion.data.choices[0].text.trim();
 
   // Save the result to the database
@@ -39,6 +44,7 @@ async function performAnalysis(filteredTests, id) {
     .update({ result: aiResponse, status: 'complete' })  // Update status to 'complete'
     .eq('id', id);
 }
+
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -52,7 +58,7 @@ export default async function handler(req, res) {
       const id = data[0].id;
 
       // Start the analysis
-      performAnalysis(filteredTests, id);
+      await performAnalysis(filteredTests, id);
 
       // Respond with the ID
       res.status(200).json({ id });
