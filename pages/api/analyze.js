@@ -8,7 +8,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getCompletion(filteredTests) {
-  const prompt = `I have the following lab test results: ${filteredTests}. Your response should be formatted as follows: 'Test name: response'.`;
+  const prompt = `I have the following lab test results: ${filteredTests}. Act as a Doctor and analyze the lab results. Let me know if any of the labs look concerning, what could be causing the concerning results, and what you as a doctor would do about it.`;
 
   try {
     const completion = await openai.createCompletion({
