@@ -8,7 +8,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getCompletion(filteredTests) {
-  const prompt = `I have the following lab test results: ${filteredTests}. Your response should be formatted as follows: 'Test name: "good or bad"'.`;
+  const prompt = `I have the following lab test results: ${filteredTests}. Your response should be formatted as follows: 'Test name: response'.`;
 
   try {
     const completion = await openai.createCompletion({
