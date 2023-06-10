@@ -8,14 +8,14 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getCompletion(filteredTests) {
-  const prompt = `I have the following lab test results: ${filteredTests}. Only reply with the name of the test and if the result is within rang or not.`;
+  const prompt = `I have the following lab test results: ${filteredTests}. Your response should be formatted as follows: 'Test name: "good or bad"'.`;
 
   try {
     const completion = await openai.createCompletion({
-      model: 'gpt-3.5-turbo-0301',
+      model: 'ada',
       prompt: prompt,
       max_tokens: 250,
-      top_p: 0.1,
+      top_p: 0.5,
     });
     console.log(completion.data.choices[0].text);
     return completion;

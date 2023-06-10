@@ -105,7 +105,7 @@ export default function MyLabs() {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="flex flex-col items-start justify-between mt-4 mb-6">
+    <div className="flex flex-col sm:flex-row items-start justify-between mt-4 mb-6">
       <div className="w-full flex items-center mb-4">
         <select
           value={filterOption}

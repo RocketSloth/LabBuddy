@@ -2,7 +2,7 @@
   "name": "lab-buddy",
   "version": "1.0.0",
   "description": "A Next.js application",
-  "main": "index.js",
+  "main": "profile.js",
   "private": true,
   "scripts": {
     "dev": "next dev",
