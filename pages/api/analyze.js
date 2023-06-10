@@ -12,7 +12,7 @@ async function getCompletion(filteredTests) {
 
   try {
     const completion = await openai.createCompletion({
-      model: 'ada',
+      model: 'text-davinci-003',
       prompt: prompt,
       max_tokens: 250,
       top_p: 0.5,
