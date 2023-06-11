@@ -150,11 +150,11 @@ export default function MyLabs() {
           <h2 className="text-xl font-semibold">{lab.test_type}</h2>
           <p className="text-gray-500 mt-2 mb-2">Date: {lab.test_date}</p>
           <p className="text-gray-500 mt-2 mb-2">Result: {lab.test_result}</p>
-          <Link href={`/edit-lab/${lab.id}`}>
-            <a className="text-sm mr-4 text-blue-500">Edit</a>
+          <Link href={`/edit-lab/${lab.id}`} className="text-sm mr-4 text-blue-500">
+            Edit
           </Link>
-          <Link href={`/labs/${lab.id}`}>
-            <a className="text-sm mr-4 text-blue-500">View</a>
+          <Link href={`/labs/${lab.id}`} className="text-sm mr-4 text-blue-500">
+            View
           </Link>
           <button
             className="text-sm mr-4 text-red-500"

@@ -1,0 +1,19 @@
+/* Profile.css */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* makes sure the container takes up the full height of the view */
+    padding: 20px; /* adds some padding around the contents */
+  }
+  
+  .profile-form {
+    width: 100%; /* makes the form take up the full width of its container */
+    max-width: 600px; /* sets a maximum width for the form */
+  }
+  
+  .profile-form .ant-form-item-label > label {
+    color: #0070f3; /* changes the color of the form item labels */
+  }
+  

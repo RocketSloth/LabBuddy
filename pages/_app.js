@@ -21,27 +21,37 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <nav className="p-6 border-b border-gray-800">
-        <Link href="/">
-          <a className="m-6 text-blue-400 hover:text-blue-500">Home</a>
-        </Link>
-        {
-          user && (
-            <Link href="/create-post">
-              <a className="m-6 text-blue-400 hover:text-blue-500">Submit Labs</a>
-            </Link>
-          )
-        }
-        {
-          user && (
-            <Link href="/my-posts">
-              <a className="m-6 text-blue-400 hover:text-blue-500">My Labs</a>
-            </Link>
-          )
-        }
-        <Link href="/profile">
-          <a className="m-6 text-blue-400 hover:text-blue-500">Profile</a>
-        </Link>
+      <nav className="p-6 border-b border-gray-800 flex justify-between items-center">
+        <div>
+          <Link href="/">
+            <span className="cursor-pointer text-2xl font-bold text-blue-500 hover:text-blue-300 mr-4">Home</span>
+          </Link>
+        </div>
+        <div>
+          {user && (
+            <>
+              <Link href="/create-post">
+                <span className="cursor-pointer text-lg text-white hover:text-blue-300 mr-4">Submit Labs</span>
+              </Link>
+              <Link href="/charts">
+                <span className="cursor-pointer text-lg text-white hover:text-blue-300 mr-4">Charts</span>
+              </Link>
+              <Link href="/my-posts">
+                <span className="cursor-pointer text-lg text-white hover:text-blue-300 mr-4">My Labs</span>
+              </Link>
+            </>
+          )}
+          <Link href="/profile">
+            <span className="cursor-pointer text-lg text-white hover:text-blue-300">Profile</span>
+          </Link>
+          <button 
+            onClick={() => supabase.auth.signOut()} 
+            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-400"
+          >
+            Logout
+          </button>
+
+        </div>
       </nav>
       <div className="py-8 px-16">
         <Component {...pageProps} />

@@ -1,3 +1,56 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://cdnjs.cloudflare.com/ajax/libs/antd/4.16.13/antd.min.css');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer components {
+  .container {
+    @apply flex flex-col items-center justify-center min-h-screen py-2 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .form-container {
+    @apply w-full max-w-md;
+  }
+  
+  .form-label {
+    @apply text-blue-600;
+  }
+
+  .profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.profile-form {
+    max-width: 600px;
+    width: 100%;
+}
+
+.profile-form .ant-form-item {
+    margin-bottom: 2rem;
+}
+
+.profile-form .ant-form-item label {
+    color: #aaa; /* Change the color of the labels to a lighter shade */
+}
+
+.profile-form .ant-input, .profile-form .ant-select-selector {
+    width: 100%;
+    max-width: 400px; /* Limit the maximum width of input boxes */
+}
+
+.button-container {
+    max-width: 200px; /* The same max-width as your input boxes */
+    width: 100%;
+}
+
+.button-margin {
+    margin-bottom: 10px; /* Adjust as needed */
+}
+
+}
