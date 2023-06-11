@@ -22,7 +22,7 @@ export async function getStaticPaths() {
   const { data, error } = await supabase
     .from('labs')
     .select('id')
-  const paths = data.map(post => ({ params: { id: JSON.stringify(post.id) }}))
+  const paths = data.map(post => ({ params: { id: post.id.toString() }}))
   return {
     paths,
     fallback: true
