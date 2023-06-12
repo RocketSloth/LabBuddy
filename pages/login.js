@@ -59,12 +59,13 @@ export default function LoginPage() {
         }
 
         .login-heading {
-          font-size: 24px;
+          font-size: 30px;
           color: #04AA6D; /* Change the color to your desired color */
         }
 
         .form-group {
           margin-bottom: 20px;
+          color: #0069d9;
         }
 
         label {

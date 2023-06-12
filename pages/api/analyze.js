@@ -7,15 +7,16 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-async function getCompletion(filteredTests) {
-  const prompt = `I have the following lab test results: ${filteredTests}. Act as a Doctor and analyze the lab results. Let me know if any of the labs look concerning, what could be causing the concerning results, and what you as a doctor would do about it.`;
-
+async function getCompletion(filteredTests, userProfile) {
+  const prompt = `I have the following lab test results: ${filteredTests}. 
+  The patient's profile information is as follows: Age: ${userProfile.age}, Sex: ${userProfile.sex}, Ethnicity: ${userProfile.ethnicity}, Location: ${userProfile.location}. 
+  As a medical expert, your task is to analyze these lab results in the context of the patient's profile. Specifically, please address the following points: 1. Identify any lab results that appear to be abnormal or concerning. 2. Discuss potential causes or conditions that could explain these abnormal results. 3. Propose your initial plan of action or recommendations as a doctor. This could include further testing, referrals to specialists, or potential treatment options. Remember, your analysis should be based on the information provided, and while you should use your expertise to make informed judgments, you should also consider the limits of the information available.`;
   try {
     const completion = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt: prompt,
-      max_tokens: 250,
-      top_p: 0.5,
+      max_tokens: 1000,
+      top_p: 0.1,
     });
     console.log(completion.data.choices[0].text);
     return completion;
@@ -29,8 +30,8 @@ async function getCompletion(filteredTests) {
   }
 }
 
-async function performAnalysis(filteredTests, id) {
-  const completion = await getCompletion(filteredTests);
+async function performAnalysis(filteredTests, id, userProfile) {
+  const completion = await getCompletion(filteredTests, userProfile);
   if (!completion || !completion.data || !completion.data.choices || !completion.data.choices[0] || !completion.data.choices[0].text) {
     console.error('Error in getCompletion:', completion);
     // Handle the error here...
@@ -48,18 +49,21 @@ async function performAnalysis(filteredTests, id) {
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { filteredTests, userId } = req.body;  // Add userId here
+    const { filteredTests, userId } = req.body;
     try {
-      // Create a new analysis record and get its ID
-      const { data, error } = await supabase
-        .from('analyses')
-        .insert({ status: 'processing', user_id: userId });  // Save the user_id with the analysis
-      if (error) throw error;
-      const id = data[0].id;
+      // Fetch the user's profile from the database
+      const { data: userProfile, error: userProfileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      if (userProfileError) throw userProfileError;
+      const id = userProfile.id;
 
       // Start the analysis
-      await performAnalysis(filteredTests, id);
-
+      // Pass the user profile to performAnalysis
+      await performAnalysis(filteredTests, id, userProfile);
+      
       // Respond with the ID
       res.status(200).json({ id });
     } catch (err) {

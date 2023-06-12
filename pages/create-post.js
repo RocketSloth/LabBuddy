@@ -66,7 +66,7 @@ function CreatePost() {
 
   return (
     <div className="max-w-lg mx-auto my-10 p-10 rounded-lg shadow-md bg-gray-900 text-white">
-      <h1 className="text-3xl font-semibold tracking-wide mt-6 text-center">Submit Lab Result</h1>
+      <h1 className="text-3xl font-semibold tracking-wide mt-6 text-center ">Submit Lab Result</h1>
       
       <form className="mt-6">
         <div className="mb-4">

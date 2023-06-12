@@ -31,25 +31,25 @@ function MyApp({ Component, pageProps }) {
           {user && (
             <>
               <Link href="/create-post">
-                <span className="cursor-pointer text-lg text-white hover:text-blue-300 mr-4">Submit Labs</span>
+                <span className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4">Submit Labs</span>
               </Link>
               <Link href="/charts">
-                <span className="cursor-pointer text-lg text-white hover:text-blue-300 mr-4">Charts</span>
+                <span className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4">Charts</span>
               </Link>
               <Link href="/my-posts">
-                <span className="cursor-pointer text-lg text-white hover:text-blue-300 mr-4">My Labs</span>
+                <span className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4">My Labs</span>
               </Link>
+              <Link href="/profile">
+                <span className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4">Profile</span>
+              </Link>
+              <button 
+                onClick={() => supabase.auth.signOut()} 
+                className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4"
+              >
+                Logout
+              </button>
             </>
           )}
-          <Link href="/profile">
-            <span className="cursor-pointer text-lg text-white hover:text-blue-300">Profile</span>
-          </Link>
-          <button 
-            onClick={() => supabase.auth.signOut()} 
-            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-400"
-          >
-            Logout
-          </button>
 
         </div>
       </nav>

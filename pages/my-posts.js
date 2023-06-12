@@ -32,7 +32,7 @@ export default function MyLabs() {
         setLoading(false);  // Hide the loading message
         clearInterval(intervalId);  // Stop polling
       }
-    }, 5000);  // Poll every 5 seconds
+    }, 1000);  // Poll every 5 seconds
   
     return () => clearInterval(intervalId);  // Clean up the interval on unmount
   }, [analysisId]);  // Run this effect when analysisId changes  
@@ -81,7 +81,7 @@ export default function MyLabs() {
   async function requestAnalysis() {
     const user = supabase.auth.user();
     const filteredTests = filteredLabs.map(lab => `${lab.test_type}: ${lab.test_result}`).join(', ');
-    console.log("Filtered tests: ", filteredTests);  // Log the filtered tests
+    //console.log("Filtered tests: ", filteredTests);  // Log the filtered tests
   
     try {
       setLoading(true);

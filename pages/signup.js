@@ -47,9 +47,12 @@ export default function SignupPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <button className="btn btn-primary" onClick={handleSignup}>
+      <Button onClick={handleSignup} type="primary">
         Sign up
-      </button>
+      </Button>
+      <Text type="secondary">
+        A confirmation email will be sent to your email address. Please follow the instructions to confirm your signup.
+      </Text>
 
       <style jsx>{`
         .container {
@@ -59,12 +62,13 @@ export default function SignupPage() {
         }
 
         .title {
-          font-size: 24px;
-          color: #ff5500;
+          font-size: 30px;
+          color: #04AA6D;
         }
 
         .form-group {
           margin-bottom: 20px;
+          color: #0069d9;
         }
 
         label {
@@ -78,22 +82,6 @@ export default function SignupPage() {
           font-size: 16px;
           border: 1px solid #ccc;
           border-radius: 4px;
-        }
-
-        .btn-primary {
-          display: block;
-          width: 100%;
-          padding: 10px;
-          font-size: 16px;
-          background-color: #007bff;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .btn-primary:hover {
-          background-color: #0069d9;
         }
       `}</style>
     </div>
