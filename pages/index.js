@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { useUser } from './hooks/auth' // Import the authentication hook
+import useUser from './hooks/auth' // Import the authentication hook
 
 export default function Home() {
   const user = useUser() // Use the authentication hook to get the user object
