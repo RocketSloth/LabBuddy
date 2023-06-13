@@ -8,7 +8,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter(); // Access the router object
 
-  const handleLogin = async () => {
+  const handleLogin = async (event) => {
+    // prevent default form submission which causes a page reload
+    event.preventDefault();
+
     const { user, error } = await supabase.auth.signIn({
       email,
       password,
@@ -25,31 +28,33 @@ export default function LoginPage() {
   return (
     <div className="container">
       <h1 className="login-heading">Login Page</h1>
-      <div className="form-group">
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          className="form-control"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          className="form-control"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button className="btn btn-primary" onClick={handleLogin}>
-        Log in
-      </button>
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            className="form-control"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            className="form-control"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button className="btn btn-primary" type="submit">
+          Log in
+        </button>
+      </form>
 
       <style jsx>{`
         .container {

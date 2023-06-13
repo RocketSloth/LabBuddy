@@ -7,8 +7,17 @@ const { Text } = Typography;
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
 
-  const handleSignup = async () => {
+  const handleSignup = async (event) => {
+    // prevent default form submission which causes a page reload
+    event.preventDefault();
+
+    if (password !== passwordConfirm) {
+      console.error('Passwords do not match');
+      return;
+    }
+
     const { user, error } = await supabase.auth.signUp({
       email,
       password,
@@ -25,31 +34,44 @@ export default function SignupPage() {
   return (
     <div className="container">
       <h1 className="title">Signup Page</h1>
-      <div className="form-group">
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          className="form-control"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          className="form-control"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <Button onClick={handleSignup} type="primary">
-        Sign up
-      </Button>
+      <form onSubmit={handleSignup}>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            className="form-control"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            className="form-control"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="passwordConfirm">Confirm Password:</label>
+          <input
+            type="password"
+            id="passwordConfirm"
+            className="form-control"
+            placeholder="Confirm your password"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+          />
+        </div>
+        <Button type="primary" htmlType="submit">
+          Sign up
+        </Button>
+      </form>
       <Text type="secondary">
         A confirmation email will be sent to your email address. Please follow the instructions to confirm your signup.
       </Text>
