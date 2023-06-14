@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '../api';
+import { useRouter } from 'next/router'; // import the useRouter hook
 
 export default function MyLabs() {
   const [labs, setLabs] = useState([]);
@@ -10,13 +11,14 @@ export default function MyLabs() {
   const [filterTerms, setFilterTerms] = useState(['']);
   const [analysis, setAnalysis] = useState(null);
   const [analysisId, setAnalysisId] = useState(null);
+  const router = useRouter(); // initialize the useRouter hook
 
   useEffect(() => {
     fetchLabs();
   }, []);
 
   useEffect(() => {
-    if (!analysisId) return;  // Don't do anything if we don't have an analysis ID yet
+    if (!analysisId) return;  
   
     const intervalId = setInterval(async () => {
       const { data, error } = await supabase
@@ -28,16 +30,20 @@ export default function MyLabs() {
       if (error || !data) {
         console.error('Error fetching analysis result:', error);
       } else if (data.status === 'complete') {
-        setAnalysis(data.result);  // Save the result to state when it's ready
-        setLoading(false);  // Hide the loading message
-        clearInterval(intervalId);  // Stop polling
+        setAnalysis(data.result);  
+        setLoading(false);  
+        clearInterval(intervalId);  
       }
-    }, 1000);  // Poll every 5 seconds
+    }, 1000);
   
-    return () => clearInterval(intervalId);  // Clean up the interval on unmount
-  }, [analysisId]);  // Run this effect when analysisId changes  
+    return () => clearInterval(intervalId);  
+  }, [analysisId]);
 
-  async function fetchLabs() {
+  const viewAnalysis = (id) => {
+    router.push(`/analysisResult?id=${id}`);
+  };
+
+  const fetchLabs = async () => {
     try {
       setLoading(true);
       const user = supabase.auth.user();
@@ -54,55 +60,51 @@ export default function MyLabs() {
     }
   }
 
-  async function deleteLab(id) {
+  const deleteLab = async (id) => {
     if (window.confirm('Are you sure you want to delete this lab?')) {
-      await supabase
-        .from('labs')
-        .delete()
-        .match({ id });
-      fetchLabs();
+      try {
+        await supabase
+          .from('labs')
+          .delete()
+          .match({ id });
+        fetchLabs();
+      } catch (error) {
+        console.error('Error deleting lab:', error);
+      }
     }
   }
 
-  const filteredLabs = labs.filter((lab) => {
-    const optionValue = lab[filterOption] ?? ""; // Provide a default empty string if optionValue is undefined
-    return filterTerms.some(term => optionValue.toLowerCase().includes(term.toLowerCase()));
-  });  
-
-  async function fetchAnalysis(id) {
-    const { data, error } = await supabase
-      .from('analyses')
-      .select('result')
-      .eq('id', id);
-    if (error) throw error;
-    return data[0].result;
-  }
-  
-  async function requestAnalysis() {
+  const requestAnalysis = async () => {
     const user = supabase.auth.user();
     const filteredTests = filteredLabs.map(lab => `${lab.test_type}: ${lab.test_result}`).join(', ');
-    //console.log("Filtered tests: ", filteredTests);  // Log the filtered tests
-  
+
     try {
       setLoading(true);
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filteredTests, userId: user.id }),  // Send the user ID with the request
+        body: JSON.stringify({ filteredTests, userId: user.id }),
       });
   
       if (!response.ok) throw new Error(response.statusText);
   
       const { id } = await response.json();
-      setAnalysisId(id);  // Save the analysis ID to state
+      setAnalysisId(id);
     } catch (error) {
       console.error('Error starting analysis:', error);
+    } finally {
+      setLoading(false);
     }
   }
-  
-  
+
+  const filteredLabs = labs.filter((lab) => {
+    const optionValue = lab[filterOption] ?? ""; 
+    return filterTerms.some(term => optionValue.toLowerCase().includes(term.toLowerCase()));
+  });  
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
+
 
   return (
     <div className="flex flex-col sm:flex-row items-start justify-between mt-4 mb-6">
@@ -138,10 +140,19 @@ export default function MyLabs() {
         </button>
         <button
           className="ml-4 p-2 bg-blue-500 text-white rounded-md"
-          onClick={() => requestAnalysis()}
+          onClick={requestAnalysis}
+          disabled={loading}
         >
           Request Analysis
         </button>
+        {analysisId && (
+          <button
+            className="ml-4 p-2 bg-green-500 text-white rounded-md"
+            onClick={() => viewAnalysis(analysisId)}
+          >
+            View Analysis
+          </button>
+        )}
       </div>
 
       <div className="scroll-container">
@@ -172,5 +183,5 @@ export default function MyLabs() {
         </div>
       )}
     </div>
-  );
+  );  
 }

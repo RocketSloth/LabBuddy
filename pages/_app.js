@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }) {
               <Link href="/charts">
                 <span className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4">Charts</span>
               </Link>
-              <Link href="/my-posts">
+              <Link href="/my-labs">
                 <span className="cursor-pointer text-2xl  text-blue-500 hover:text-blue-300 mr-4">My Labs</span>
               </Link>
               <Link href="/profile">
