@@ -56,6 +56,7 @@ export default function Home() {
           Welcome to Lab Tracker, {user.email}!
         </h1>
         <p className="text-xl">You are logged in.</p>
+        
         {/* Add more content for authenticated users */}
       </div>
     </div>

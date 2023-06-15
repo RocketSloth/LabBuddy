@@ -15,20 +15,23 @@ function Profile(props) {
 
     const fetchProfile = useCallback(async () => {
         if (user && user.id) {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select("*")
-                .eq('user_id', user.id)
-                .single();
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select("*")
+                    .eq('user_id', user.id)
+                    .single();
 
-            console.log('Profile data:', data); // Add this line
-            console.log('Fetch error:', error); // And this line
+                if (error) throw error;
 
-            if (data && !error) {
-                setAge(data.age);
-                setSex(data.sex);
-                setEthnicity(data.ethnicity);
-                setLocation(data.location);
+                if (data) {
+                    setAge(data.age);
+                    setSex(data.sex);
+                    setEthnicity(data.ethnicity);
+                    setLocation(data.location);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
             }
         }
     }, [user]);
@@ -48,19 +51,27 @@ function Profile(props) {
     }, [fetchProfile]);
 
     const handleSubmit = async () => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .insert([
-              { user_id: user.id, age: age, sex: sex, ethnicity: ethnicity, location: location },
-            ]);
+        try {
+            // Validate form data before submitting
+            if (!age || !sex || !ethnicity || !location) {
+                throw new Error('Please fill out all fields');
+            }
 
-        if (error) {
-          console.error('Error inserting profile: ', error);
-        } else {
-          console.log('Profile saved successfully!');
-          setEditing(false); // switch back to view mode after successful submit
+            const { data, error } = await supabase
+                .from('profiles')
+                .upsert([
+                  { user_id: user.id, age: age, sex: sex, ethnicity: ethnicity, location: location },
+                ]);
+
+            if (error) throw error;
+
+            console.log('Profile saved successfully!');
+            setEditing(false); // switch back to view mode after successful submit
+        } catch (error) {
+            console.error('Error inserting/updating profile: ', error);
         }
     }
+    
 
     if (user)
       return (

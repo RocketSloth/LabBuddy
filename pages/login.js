@@ -1,15 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Auth } from '@supabase/ui';
 import { supabase } from '../api';
 import { useRouter } from 'next/router';
+import Link from 'next/link'; // Import the Link component here
+
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter(); // Access the router object
+  const [loginError, setLoginError] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const session = supabase.auth.session();
+
+    if (session) {
+      router.push('/'); // Redirect to home if user is already logged in
+    }
+  }, []);
 
   const handleLogin = async (event) => {
-    // prevent default form submission which causes a page reload
     event.preventDefault();
 
     const { user, error } = await supabase.auth.signIn({
@@ -18,10 +29,10 @@ export default function LoginPage() {
     });
 
     if (error) {
-      console.error('Login error:', error);
+      setLoginError(error.message);
     } else {
       console.log('Logged in successfully:', user);
-      router.push('/'); // Redirect to the home page
+      router.push('/');
     }
   };
 
@@ -54,7 +65,9 @@ export default function LoginPage() {
         <button className="btn btn-primary" type="submit">
           Log in
         </button>
+        {loginError && <p className="error-message">{loginError}</p>}
       </form>
+      <Link href="/PasswordResetPage">Forgot your password?</Link>
 
       <style jsx>{`
         .container {
