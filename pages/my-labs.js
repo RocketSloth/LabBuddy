@@ -12,6 +12,8 @@ export default function MyLabs() {
   const [analysis, setAnalysis] = useState(null);
   const [analysisId, setAnalysisId] = useState(null);
   const router = useRouter(); // initialize the useRouter hook
+  const [followUpQuestion, setFollowUpQuestion] = useState(''); // new state hook for the follow-up question
+
 
   useEffect(() => {
     fetchLabs();
@@ -83,19 +85,22 @@ export default function MyLabs() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filteredTests, userId: user.id }),
+        body: JSON.stringify({ filteredTests, userId: user.id, followUpQuestion }),
       });
   
       if (!response.ok) throw new Error(response.statusText);
   
       const { id } = await response.json();
       setAnalysisId(id);
+      setFollowUpQuestion(''); // Clear the follow-up question input field
     } catch (error) {
       console.error('Error starting analysis:', error);
     } finally {
       setLoading(false);
     }
   }
+
+  
 
   const filteredLabs = labs.filter((lab) => {
     const optionValue = lab[filterOption] ?? ""; 
@@ -152,7 +157,22 @@ export default function MyLabs() {
           >
             View Analysis
           </button>
+          
         )}
+        <input
+        type="text"
+        placeholder="Enter your follow-up question here..."
+        value={followUpQuestion}
+        onChange={(e) => setFollowUpQuestion(e.target.value)}
+        className="w-64 p-2 bg-gray-800 text-white rounded-md outline-none"
+      />
+      <button
+        className="ml-4 p-2 bg-blue-500 text-white rounded-md"
+        onClick={requestAnalysis}
+        disabled={loading}
+      >
+        Submit Follow-up Question
+      </button>
       </div>
 
       <div className="scroll-container">
