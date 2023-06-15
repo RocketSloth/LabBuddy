@@ -1,3 +1,4 @@
+// 'login.js'
 import { useState, useEffect } from 'react';
 import { Auth } from '@supabase/ui';
 import { supabase } from '../api';

@@ -1,3 +1,4 @@
+// 'index.js'
 import Head from 'next/head'
 import Link from 'next/link'
 import useUser from './hooks/auth' // Import the authentication hook

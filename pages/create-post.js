@@ -1,3 +1,4 @@
+// 'create-post.js'
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 import { useRouter } from 'next/router';

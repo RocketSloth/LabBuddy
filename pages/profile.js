@@ -1,3 +1,4 @@
+// 'profile.js'
 import React, { useState, useEffect, useCallback } from 'react';
 import { Auth, Typography, Button } from "@supabase/ui";
 import { Form, Input, Select } from "antd";

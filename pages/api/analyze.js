@@ -1,3 +1,5 @@
+// 'analyze.js'
+
 const { Configuration, OpenAIApi } = require('openai');
 import { supabase } from '../../api';
 
