@@ -15,45 +15,48 @@ export default function AnalysisResult() {
   const [analysis, setAnalysis] = useState(null);
   const [retries, setRetries] = useState(0);  // State for tracking number of retries
 
-  const user = supabase.auth.user();
+  const user = supabase.auth.user() || {}; // Fallback to empty object if user is null
 
   useEffect(() => {
-    // Start polling
-    const intervalId = setInterval(async () => {
-      const { data: newAnalysis, error: fetchError } = await supabase
-        .from('analyses')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .order('id', { ascending: false }) // Added this line
-        .limit(1)
-        .single();
-  
-      if (fetchError) {
-        setError(fetchError.message);
-        clearInterval(intervalId);  // Stop polling in case of error
-      }
-  
-      // If the analysis is complete, stop polling
-      if (newAnalysis && newAnalysis.status === 'complete') {
-        setAnalysis(newAnalysis);
-        setLoading(false);
-        clearInterval(intervalId);
-      }
-  
-      // If we've tried too many times, stop polling
-      if (retries > 10) {
-        setError('Analysis is taking too long. Please try again later.');
-        clearInterval(intervalId);
-      }
-  
-      setRetries(retries + 1);  // Increment number of retries
-    }, 3000);
-  
-    // Clean up function to clear the interval when the component is unmounted
-    return () => clearInterval(intervalId);
+    // Only run this effect if user.id is not undefined
+    if (user.id) {
+      // Start polling
+      const intervalId = setInterval(async () => {
+        const { data: newAnalysis, error: fetchError } = await supabase
+          .from('analyses')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false }) // Added this line
+          .limit(1)
+          .single();
+
+        if (fetchError) {
+          setError(fetchError.message);
+          clearInterval(intervalId);  // Stop polling in case of error
+        }
+
+        // If the analysis is complete, stop polling
+        if (newAnalysis && newAnalysis.status === 'complete') {
+          setAnalysis(newAnalysis);
+          setLoading(false);
+          clearInterval(intervalId);
+        }
+
+        // If we've tried too many times, stop polling
+        if (retries > 10) {
+          setError('Analysis is taking too long. Please try again later.');
+          clearInterval(intervalId);
+        }
+
+        setRetries(retries + 1);  // Increment number of retries
+      }, 3000);
+
+      // Clean up function to clear the interval when the component is unmounted
+      return () => clearInterval(intervalId);
+    }
   }, [user.id, retries]);  // Add 'retries' as a dependency
-  
+
 
   const handleFollowUpQuestion = async (question) => {
     setLoading(true);
@@ -66,7 +69,7 @@ export default function AnalysisResult() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: user.id,
+          user_id: user.id,
           followUpQuestion: question,
           previousAIResponse: analysis.result,  // Add the previous AI response here
         }),
