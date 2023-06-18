@@ -37,7 +37,7 @@ export default function MyLabs() {
         setLoading(false);  
         clearInterval(intervalId);  
       }
-    }, 1000);
+    }, 3000);
   
     return () => clearInterval(intervalId);  
   }, [analysisId]);
@@ -77,6 +77,11 @@ export default function MyLabs() {
     }
   }
 
+  const filteredLabs = labs.filter((lab) => {
+    const optionValue = lab[filterOption] ?? ""; 
+    return filterTerms.some(term => optionValue.toLowerCase().includes(term.toLowerCase()));
+  });
+
   const requestAnalysis = async () => {
     const user = supabase.auth.user();
     const filteredTests = filteredLabs.map(lab => `${lab.test_type}: ${lab.test_result}`).join(', ');
@@ -100,13 +105,6 @@ export default function MyLabs() {
       setLoading(false);
     }
   }
-
-  
-
-  const filteredLabs = labs.filter((lab) => {
-    const optionValue = lab[filterOption] ?? ""; 
-    return filterTerms.some(term => optionValue.toLowerCase().includes(term.toLowerCase()));
-  });  
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -160,7 +158,7 @@ export default function MyLabs() {
           </button>
           
         )}
-        <input
+        {/* <input
         type="text"
         placeholder="Enter your follow-up question here..."
         value={followUpQuestion}
@@ -173,7 +171,7 @@ export default function MyLabs() {
         disabled={loading}
       >
         Submit Follow-up Question
-      </button>
+      </button> */}
       </div>
 
       <div className="scroll-container">

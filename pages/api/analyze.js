@@ -9,16 +9,18 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-async function getCompletion(filteredTests, userProfile, followUpQuestion = '') {
+async function getCompletion(filteredTests, userProfile, followUpQuestion = '', previousAIResponse = '') {
   const initialPrompt = followUpQuestion 
-    ? followUpQuestion 
+    ? `${previousAIResponse}. ${followUpQuestion}` 
     : `I have the following lab test results: ${filteredTests}. The patient's profile information is as follows: Age: ${userProfile.age}, Sex: ${userProfile.sex}, Ethnicity: ${userProfile.ethnicity}, Location: ${userProfile.location}. Please provide an analysis.`;
+
+  console.log("Initial prompt:", initialPrompt); // Add this line
 
   try {
     const completion = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt: initialPrompt,
-      max_tokens: 250,
+      max_tokens: 1000,
     });
     console.log(completion.data.choices[0].text);
     return completion;
@@ -33,8 +35,11 @@ async function getCompletion(filteredTests, userProfile, followUpQuestion = '') 
 }
 
 
-async function performAnalysis(filteredTests, id, userProfile, userId) {
-  const completion = await getCompletion(filteredTests, userProfile);
+
+// Note that we added followUpQuestion as the last parameter
+async function performAnalysis(filteredTests, id, userProfile, userId, followUpQuestion, previousAIResponse) {
+  // We're also passing followUpQuestion and previousAIResponse to getCompletion now
+  const completion = await getCompletion(filteredTests, userProfile, followUpQuestion, previousAIResponse);
   if (!completion || !completion.data || !completion.data.choices || !completion.data.choices[0] || !completion.data.choices[0].text) {
     console.error('Error in getCompletion:', completion);
     return;
@@ -51,9 +56,8 @@ async function performAnalysis(filteredTests, id, userProfile, userId) {
       console.error('Error saving analysis result:', error);
       return;
     }
-    return data.id;  // Return the id of the new analysis
+    return data[0].id;  // Return the id of the new analysis
 }
-
 
 
 export default async function handler(req, res) {
@@ -66,10 +70,21 @@ export default async function handler(req, res) {
         .eq('user_id', userId)
         .single();
       if (userProfileError) throw userProfileError;
-      const id = userProfile.id;
 
-      await performAnalysis(filteredTests, id, userProfile, userId, followUpQuestion);
-      
+      const { data: previousAnalysis, error: previousAnalysisError } = await supabase
+        .from('analyses')
+        .select('result')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .order('id', { ascending: false }) // Added this line
+        .limit(1)
+        .single();
+      if (previousAnalysisError) throw previousAnalysisError;
+      const previousAIResponse = previousAnalysis ? previousAnalysis.result : '';
+
+      const id = userProfile.id;
+      await performAnalysis(filteredTests, id, userProfile, userId, followUpQuestion, previousAIResponse);
+
       res.status(200).json({ id });
     } catch (err) {
       console.error('Error starting analysis:', err);
@@ -79,5 +94,8 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method Not Allowed' });
   }
 }
+
+
+
 
 
