@@ -44,12 +44,12 @@ export default function AnalysisResult() {
         }
 
         // If we've tried too many times, stop polling
-        if (retries > 10) {
-          setError('Analysis is taking too long. Please try again later.');
-          clearInterval(intervalId);
-        }
+        // if (retries > 10) {
+        //   setError('Analysis is taking too long. Please try again later.');
+        //   clearInterval(intervalId);
+        // }
 
-        setRetries(retries + 1);  // Increment number of retries
+        // setRetries(retries + 1);  // Increment number of retries
       }, 3000);
 
       // Clean up function to clear the interval when the component is unmounted
