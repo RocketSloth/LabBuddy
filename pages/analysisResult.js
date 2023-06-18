@@ -69,7 +69,7 @@ export default function AnalysisResult() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: user.id,
+          userId: user.id,
           followUpQuestion: question,
           previousAIResponse: analysis.result,  // Add the previous AI response here
         }),
