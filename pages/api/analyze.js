@@ -20,7 +20,7 @@ async function getCompletion(filteredTests, userProfile, followUpQuestion = '', 
     const completion = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt: initialPrompt,
-      max_tokens: 1000,
+      max_tokens: 3000,
     });
     console.log(completion.data.choices[0].text);
     return completion;
@@ -94,7 +94,6 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method Not Allowed' });
   }
 }
-
 
 
 
