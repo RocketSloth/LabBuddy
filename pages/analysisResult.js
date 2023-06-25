@@ -18,41 +18,36 @@ export default function AnalysisResult() {
   const user = supabase.auth.user() || {}; // Fallback to empty object if user is null
 
   useEffect(() => {
-    // Only run this effect if user.id is not undefined
     if (user.id) {
-      // Start polling
       const intervalId = setInterval(async () => {
         const { data: newAnalysis, error: fetchError } = await supabase
           .from('analyses')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
-          .order('id', { ascending: false }) // Added this line
+          .order('id', { ascending: false })
           .limit(1)
           .single();
-
+  
         if (fetchError) {
           setError(fetchError.message);
-          clearInterval(intervalId);  // Stop polling in case of error
+          clearInterval(intervalId);
         }
-
-        // If the analysis is complete, stop polling
+  
         if (newAnalysis && newAnalysis.status === 'complete') {
-          // Only append the new analysis if it's different from the last one
           if (!analysis.length || newAnalysis.id !== analysis[analysis.length - 1].id) {
             setAnalysis(prev => [...prev, newAnalysis]);
+            setLoading(false);
+            setProcessingFollowUp(false);
           }
-          setLoading(false);
-          clearInterval(intervalId);
-          setProcessingFollowUp(false);
         }
       }, 3000);
-
-      // Clean up function to clear the interval when the component is unmounted
+  
+      // Clear the interval when the component is unmounted
       return () => clearInterval(intervalId);
     }
-  }, [user.id, processingFollowUp]);  // Add 'processingFollowUp' to the dependency array
-
+  }, [user.id, processingFollowUp]);
+  
   const handleFollowUpQuestion = async (question) => {
     setLoading(true);
     setError(null);
