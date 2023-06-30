@@ -28,12 +28,21 @@ export default function Charts() {
   }, [])
 
   async function fetchPosts() {
+    const user = supabase.auth.user();
+    if (!user) {
+      // User is not logged in. You should handle this case.
+      return;
+    }
+
     const { data, error } = await supabase
       .from('labs')
       .select()
-    setLabs(data)
-    setLoading(false)
+      .eq('user_id', user.id);
+    setLabs(data);
+    setLoading(false);
   }
+
+
 
   // Unique Test Types
   const uniqueTestTypes = labs && labs.length ? [...new Set(labs.map(lab => lab.test_type))] : [];
@@ -50,7 +59,7 @@ export default function Charts() {
   }
 
   if (loading) return <p className="text-2xl">Loading...</p>;
-  if (!labs.length) return <p className="text-2xl">No labs.</p>;
+  if (!labs || !labs.length) return <p className="text-2xl">No labs.</p>;  
 
   const chartData = selectedChart
     ? labs.filter(lab => lab.test_type === selectedChart).map(lab => ({

@@ -1,114 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { supabase } from '../api';
+const { Configuration, OpenAIApi } = require('openai');
 
-const Container = styled.div`
-  padding: 50px;
-  max-width: 600px;
-  margin: auto;
-`;
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
-const Title = styled.h1`
-  text-align: center;
-`;
-
-const Form = styled.form`
-  margin-bottom: 30px;
-`;
-
-const Input = styled.input`
-  margin-right: 10px;
-`;
-
-const Button = styled.button`
-  background-color: #4CAF50;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-`;
-
-const MedicationItem = styled.div`
-  margin-bottom: 20px;
-`;
-
-function MedicationsPage() {
+const Medications = () => {
   const [medications, setMedications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [medicationName, setMedicationName] = useState('');
-  const [dosage, setDosage] = useState('');
-  const [frequency, setFrequency] = useState('');
+  const [selectedMedication, setSelectedMedication] = useState(null);
+  const [name, setName] = useState("");
+  const [dosage, setDosage] = useState("");
+  const [frequency, setFrequency] = useState("");
+  const [explanation, setExplanation] = useState("");
 
   useEffect(() => {
     fetchMedications();
   }, []);
 
+  useEffect(() => {
+    if (selectedMedication) {
+      explainMedication(selectedMedication.name);
+    }
+  }, [selectedMedication]);
+
   async function fetchMedications() {
-    const user = supabase.auth.user();
-    const { data } = await supabase
-      .from('medications')
-      .select('*')
-      .eq('user_id', user.id);
-    setMedications(data);
-    setLoading(false);
+    const { data, error } = await supabase.from('medications').select('*');
+    if (error) console.log('error', error);
+    else setMedications(data);
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const user = supabase.auth.user();
-    const { data, error } = await supabase
-      .from('medications')
-      .insert([{ user_id: user.id, name: medicationName, dosage, frequency }]);
-    if (error) {
-      console.error('Error: ', error);
-    } else {
-      setMedications([...medications, ...(data || [])]); // Spread data into array only if it is not null
-      setMedicationName('');
-      setDosage('');
-      setFrequency('');
+  async function addMedication() {
+    const { data, error } = await supabase.from('medications').insert([{ name, dosage, frequency }]);
+    if (error) console.log('error', error);
+    else fetchMedications();
+  }
+
+  async function explainMedication(medicationName) {
+    const prompt = "What is " + medicationName + " used for and how should it be taken?";
+
+    try {
+      const completion = await openai.createChatCompletion({
+        model: "gpt-4",
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: prompt }
+        ],
+      });
+
+      setExplanation(completion.data.choices[0].message.content);
+    } catch (error) {
+      console.error('Failed to fetch explanation from OpenAI API:', error);
     }
   }
-  
 
-  if (loading) return <div>Loading...</div>;
+  function handleMedicationClick(medication) {
+    setSelectedMedication(medication);
+  }
 
   return (
-    <Container>
-      <Title>My Medications</Title>
-      <Form onSubmit={handleSubmit}>
-        <Input
-          type='text'
-          placeholder='Medication Name'
-          value={medicationName}
-          onChange={e => setMedicationName(e.target.value)}
-        />
-        <Input
-          type='text'
-          placeholder='Dosage'
-          value={dosage}
-          onChange={e => setDosage(e.target.value)}
-        />
-        <Input
-          type='text'
-          placeholder='Frequency'
-          value={frequency}
-          onChange={e => setFrequency(e.target.value)}
-        />
-        <Button type='submit'>Submit</Button>
-      </Form>
-      {medications && medications.map((medication) => (
-        <MedicationItem key={medication.id}>
-          <div><strong>Name:</strong> {medication.name}</div>
-          <div><strong>Dosage:</strong> {medication.dosage}</div>
-          <div><strong>Frequency:</strong> {medication.frequency}</div>
-        </MedicationItem>
+    <div className="p-12 mx-auto max-w-lg">
+      <h1 className="text-2xl text-white font-bold mb-4">Medications</h1>
+      {medications.map((medication) => (
+        <div key={medication.id} onClick={() => handleMedicationClick(medication)} className="mb-4 p-4 border border-gray-200 rounded">
+          <p className="text-lg">{medication.name}</p>
+          <p>{medication.dosage}</p>
+          <p>{medication.frequency}</p>
+          <button onClick={(e) => { e.stopPropagation(); explainMedication(medication.name); }} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Explain this Medication</button>
+        </div>
       ))}
-    </Container>
+      {selectedMedication && (
+        <div className="mt-6 p-4 bg-gray-100 border border-gray-200 rounded">
+          <h2 className="text-lg font-semibold">{selectedMedication.name}</h2>
+          <p>{selectedMedication.dosage}</p>          
+          <p>{selectedMedication.frequency}</p>
+          <p>{explanation}</p>
+        </div>
+      )}
+      <div className="mt-6">
+        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Medication Name" className="p-2 border text-black border-gray-200 rounded w-full mb-2"/>
+        <input type="text" value={dosage} onChange={e => setDosage(e.target.value)} placeholder="Dosage" className="p-2 border text-black border-gray-200 rounded w-full mb-2"/>
+        <input type="text" value={frequency} onChange={e => setFrequency(e.target.value)} placeholder="Frequency" className="p-2 border text-black border-gray-200 rounded w-full mb-2"/>
+        <button onClick={addMedication} className="px-4 py-2 bg-blue-500 text-white rounded w-full">Add Medication</button>
+      </div>
+    </div>
   );
-}
+};
 
-export default MedicationsPage;
+export default Medications;
