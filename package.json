@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
-    "@supabase/supabase-js": "^1.13.1",
+    "@supabase/supabase-js": "^1.35.7",
     "@supabase/ui": "^0.27.2",
     "@tailwindcss/typography": "^0.4.1",
     "@types/react": "^16",

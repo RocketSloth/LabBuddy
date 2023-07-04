@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { supabase } from '../api';
-const { Configuration, OpenAIApi } = require('openai');
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
+import { useEffect, useState } from 'react';
+import { Auth } from '@supabase/ui';
 
 const Medications = () => {
   const [medications, setMedications] = useState([]);
@@ -14,19 +9,36 @@ const Medications = () => {
   const [dosage, setDosage] = useState("");
   const [frequency, setFrequency] = useState("");
   const [explanation, setExplanation] = useState("");
+  const [compatibility, setCompatibility] = useState("");
+  const [checkCompatibilityClicked, setCheckCompatibilityClicked] = useState(false);
 
   useEffect(() => {
     fetchMedications();
   }, []);
 
   useEffect(() => {
-    if (selectedMedication) {
-      explainMedication(selectedMedication.name);
+    if (medications.length > 0 && checkCompatibilityClicked) {
+      checkCompatibility();
+      setCheckCompatibilityClicked(false);
+    }
+  }, [medications, checkCompatibilityClicked]);
+
+  useEffect(() => {
+    if (selectedMedication && selectedMedication.name) {
+      explainMedication(selectedMedication);
     }
   }, [selectedMedication]);
 
   async function fetchMedications() {
-    const { data, error } = await supabase.from('medications').select('*');
+    const user = supabase.auth.user();
+    if (!user) {
+      // User is not logged in. You should handle this case.
+      return;
+    }
+    const { data, error } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('user_id', user.id);
     if (error) console.log('error', error);
     else setMedications(data);
   }
@@ -37,45 +49,92 @@ const Medications = () => {
     else fetchMedications();
   }
 
-  async function explainMedication(medicationName) {
-    const prompt = "What is " + medicationName + " used for and how should it be taken?";
-
+  async function explainMedication(medication) {
+    const prompt = `What is ${medication.name} used for, what is its recommended dosage (${medication.dosage}), and how often should it be taken (${medication.frequency})?`;
+  
     try {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: prompt }
-        ],
+      const response = await fetch('/api/openai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4-0613',
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            { role: 'user', content: prompt },
+          ],
+        }),
       });
-
-      setExplanation(completion.data.choices[0].message.content);
+  
+      if (!response.ok) {
+        console.error('Failed to fetch explanation from OpenAI API:', response.statusText);
+        return;
+      }
+  
+      const data = await response.json();
+      if (data.choices && data.choices.length > 0) {
+        setExplanation(data.choices[0].message.content);
+      } else {
+        setExplanation('No explanation available.');
+      }
     } catch (error) {
       console.error('Failed to fetch explanation from OpenAI API:', error);
     }
-  }
+  }  
 
-  function handleMedicationClick(medication) {
-    setSelectedMedication(medication);
-  }
+  async function checkCompatibility() {
+    const medicationNames = medications.map((m) => m.name).join(', ');
+    const prompt = `Can the following medications be taken together: ${medicationNames}?`;
+  
+    try {
+      const response = await fetch('/api/openai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+  
+      if (!response.ok) {
+        console.error('Failed to fetch compatibility info from OpenAI API:', response.statusText);
+        return;
+      }
+  
+      const data = await response.json();
+      if (data.choices && data.choices.length > 0) {
+        setCompatibility(data.choices[0].message.content);
+      } else {
+        setCompatibility('Compatibility information not available.');
+      }
+    } catch (error) {
+      console.error('Failed to fetch compatibility info from OpenAI API:', error);
+    }
+  }  
 
   return (
-    <div className="p-12 mx-auto max-w-lg">
+    <div className="p-12 mx-auto max-w-lg bg-blue-900">
       <h1 className="text-2xl text-white font-bold mb-4">Medications</h1>
       {medications.map((medication) => (
-        <div key={medication.id} onClick={() => handleMedicationClick(medication)} className="mb-4 p-4 border border-gray-200 rounded">
-          <p className="text-lg">{medication.name}</p>
-          <p>{medication.dosage}</p>
-          <p>{medication.frequency}</p>
-          <button onClick={(e) => { e.stopPropagation(); explainMedication(medication.name); }} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Explain this Medication</button>
+        <div key={medication.id} className="mb-4 p-4 border border-gray-200 rounded">
+          <p className="text-lg text-white">{medication.name}</p>
+          <p className="text-white">{medication.dosage}</p>
+          <p className="text-white">{medication.frequency}</p>
+          <button onClick={() => setSelectedMedication(medication)} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Explain this Medication</button>
         </div>
       ))}
       {selectedMedication && (
-        <div className="mt-6 p-4 bg-gray-100 border border-gray-200 rounded">
-          <h2 className="text-lg font-semibold">{selectedMedication.name}</h2>
-          <p>{selectedMedication.dosage}</p>          
-          <p>{selectedMedication.frequency}</p>
-          <p>{explanation}</p>
+        <div className="mt-6 p-4 bg-gray-800 border border-gray-200 rounded">
+          <h2 className="text-lg font-semibold text-white">{selectedMedication.name}</h2>
+          <p className="text-white">{selectedMedication.dosage}</p>          
+          <p className="text-white">{selectedMedication.frequency}</p>
+          <p className="text-white">{explanation}</p>
         </div>
       )}
       <div className="mt-6">
@@ -84,6 +143,12 @@ const Medications = () => {
         <input type="text" value={frequency} onChange={e => setFrequency(e.target.value)} placeholder="Frequency" className="p-2 border text-black border-gray-200 rounded w-full mb-2"/>
         <button onClick={addMedication} className="px-4 py-2 bg-blue-500 text-white rounded w-full">Add Medication</button>
       </div>
+      {medications.length > 1 && (
+        <div className="mt-6">
+          <button onClick={() => setCheckCompatibilityClicked(true)} className="px-4 py-2 bg-blue-500 text-white rounded">Check Compatibility</button>
+          <p className="text-white">{compatibility}</p>
+        </div>
+      )}
     </div>
   );
 };
