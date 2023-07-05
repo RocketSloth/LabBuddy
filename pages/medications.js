@@ -126,7 +126,7 @@ const Medications = () => {
           <p className="text-lg text-white">{medication.name}</p>
           <p className="text-white">{medication.dosage}</p>
           <p className="text-white">{medication.frequency}</p>
-          <button onClick={() => setSelectedMedication(medication)} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Explain this Medication</button>
+          <button onClick={() => explainMedication(medication)} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Explain this Medication</button>
         </div>
       ))}
       {selectedMedication && (
