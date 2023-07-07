@@ -1,10 +1,44 @@
 // 'profile.js'
 import React, { useState, useEffect, useCallback } from 'react';
-import { Auth, Typography, Button } from "@supabase/ui";
+import { Auth, Typography, Button as AntButton } from "@supabase/ui";
 import { Form, Input, Select } from "antd";
-const { Text } = Typography;
+import styled from 'styled-components';
+const { Text: AntText } = Typography;
 const { Option } = Select;
 import { supabase } from '../api';
+
+const Container = styled.div`
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin: 2rem auto;
+  max-width: 500px;
+`;
+
+const Text = styled(AntText)`
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1rem;
+`;
+
+const Button = styled(AntButton)`
+  background-color: #036AB7;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+`;
+
+const FormItem = styled(Form.Item)`
+  margin-bottom: 1rem;
+`;
 
 function Profile(props) {
     const { user } = Auth.useUser();
@@ -76,20 +110,20 @@ function Profile(props) {
 
     if (user)
       return (
-        <div className="profile-container">
+        <Container>
           <Text>Signed in: {user.email}</Text>
           {editing ? (
             <Form onFinish={handleSubmit} className="profile-form">
-              <Form.Item label="Age" name="age">
+              <FormItem label="Age" name="age">
                 <Input value={age} onChange={(e) => setAge(e.target.value)} />
-              </Form.Item>
-              <Form.Item label="Sex" name="sex">
+              </FormItem>
+              <FormItem label="Sex" name="sex">
                 <Select value={sex} onChange={(value) => setSex(value)}>
                   <Option value="male">Male</Option>
                   <Option value="female">Female</Option>
                 </Select>
-              </Form.Item>
-              <Form.Item label="Ethnicity" name="ethnicity">
+              </FormItem>
+              <FormItem label="Ethnicity" name="ethnicity">
                 <Select value={ethnicity} onChange={(value) => setEthnicity(value)}>
                   <Option value="white">White</Option>
                   <Option value="asian">Asian</Option>
@@ -102,8 +136,8 @@ function Profile(props) {
                   <Option value="other">Other</Option>
                   // Add more options as needed
                 </Select>
-              </Form.Item>
-              <Form.Item label="Location" name="location">
+              </FormItem>
+              <FormItem label="Location" name="location">
                 <Select value={location} onChange={(value) => setLocation(value)}>
                   <Option value="us">US</Option>
                   <Option value="uk">UK</Option>
@@ -123,32 +157,32 @@ function Profile(props) {
                   <Option value="other">Other</Option>
                   // Add more options as needed
                 </Select>
-              </Form.Item>
-              <Form.Item className="button-container">
-                <Button className="button-margin" Button type="primary" htmlType="submit" block>Submit</Button>
+              </FormItem>
+              <FormItem className="button-container">
+                <Button type="primary" htmlType="submit" block>Submit</Button>
                 <Button block onClick={() => props.supabaseClient.auth.signOut()}>Sign out</Button>
-                </Form.Item>
-              </Form>
-            ) : (
-              <>
-                <Text>Age: {age}</Text>
-                <Text>Sex: {sex}</Text>
-                <Text>Ethnicity: {ethnicity}</Text>
-                <Text>Location: {location}</Text>
-                <Button onClick={() => setEditing(true)}>Edit Profile</Button>
-              </>
-            )}
-          </div>
-        );
-      return props.children;
+              </FormItem>
+            </Form>
+          ) : (
+            <>
+              <Text>Age: {age}</Text>
+              <Text>Sex: {sex}</Text>
+              <Text>Ethnicity: {ethnicity}</Text>
+              <Text>Location: {location}</Text>
+              <Button onClick={() => setEditing(true)}>Edit Profile</Button>
+            </>
+          )}
+        </Container>
+      );
+    return props.children;
   }
 
-export default function AuthProfile() {
+  export default function AuthProfile() {
     return (
-        <Auth.UserContextProvider supabaseClient={supabase}>
-          <Profile supabaseClient={supabase}>
-            <Auth supabaseClient={supabase} />
-          </Profile>
-        </Auth.UserContextProvider>
+      <Auth.UserContextProvider supabaseClient={supabase}>
+        <Profile supabaseClient={supabase}>
+          <Auth supabaseClient={supabase} />
+        </Profile>
+      </Auth.UserContextProvider>
     )
-}
+  }

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '../api';
 import { useRouter } from 'next/router'; // import the useRouter hook
+import styles from './my-labs.module.css'; // Import the CSS module
 
 export default function MyLabs() {
   const [labs, setLabs] = useState([]);
@@ -111,8 +112,8 @@ export default function MyLabs() {
 
 
   return (
-    <div className="flex flex-col sm:flex-row items-start justify-between mt-4 mb-6">
-      <div className="w-full flex items-center mb-4">
+    <div className="my-8">
+      <div className="flex flex-wrap justify-between mb-6">
         <select
           value={filterOption}
           onChange={(e) => setFilterOption(e.target.value)}
@@ -158,46 +159,34 @@ export default function MyLabs() {
           </button>
           
         )}
-        {/* <input
-        type="text"
-        placeholder="Enter your follow-up question here..."
-        value={followUpQuestion}
-        onChange={(e) => setFollowUpQuestion(e.target.value)}
-        className="w-64 p-2 bg-gray-800 text-white rounded-md outline-none"
-      />
-      <button
-        className="ml-4 p-2 bg-blue-500 text-white rounded-md"
-        onClick={requestAnalysis}
-        disabled={loading}
-      >
-        Submit Follow-up Question
-      </button> */}
       </div>
 
-      <div className="scroll-container">
-      {filteredLabs.map((lab, index) => (
-        <div key={index} className="border-b border-gray-300 mt-8 pb-4">
-          <h2 className="text-xl font-semibold">{lab.test_type}</h2>
-          <p className="text-gray-500 mt-2 mb-2">Date: {lab.test_date}</p>
-          <p className="text-gray-500 mt-2 mb-2">Result: {lab.test_result}</p>
-          <Link href={`/edit-lab/${lab.id}`} className="text-sm mr-4 text-blue-500">
-            Edit
-          </Link>
-          <Link href={`/labs/${lab.id}`} className="text-sm mr-4 text-blue-500">
-            View
-          </Link>
-          <button
-            className="text-sm mr-4 text-red-500"
-            onClick={() => deleteLab(lab.id)}
-          >
-            Delete
-          </button>
-        </div>
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredLabs.map((lab, index) => (
+          <div key={index} className={`p-6 border rounded-lg shadow-lg ${styles.labCard}`}>
+            <h2 className="text-xl font-semibold mb-2">{lab.test_type}</h2>
+            <p className="text-gray-500 mb-2">Date: {lab.test_date}</p>
+            <p className="text-gray-500 mb-4">Result: {lab.test_result}</p>
+            <div className="flex space-x-4">
+            <Link href={`/edit-lab/${lab.id}`}>
+              <span className="text-sm cursor-pointer text-blue-500">Edit</span>
+            </Link>
+            <Link href={`/labs/${lab.id}`}>
+              <span className="text-sm cursor-pointer text-blue-500">View</span>
+            </Link>
+              <button
+                className="text-sm text-red-500"
+                onClick={() => deleteLab(lab.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
       {analysis && (
-        <div className="scroll-container mt-8">
-          <h2 className="text-xl font-semibold">Analysis</h2>
+        <div className="mt-8 p-6 border rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Analysis</h2>
           <p>{analysis}</p>
         </div>
       )}

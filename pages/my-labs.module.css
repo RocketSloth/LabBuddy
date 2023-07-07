@@ -1,0 +1,8 @@
+.labCard {
+    transition: box-shadow 0.3s;
+  }
+  
+  .labCard:hover {
+    box-shadow: 0 0.5em 1em -0.125em rgba(108, 114, 128, 0.2), 0 0 0 1px rgba(10, 10, 10, 0.05);
+  }
+  
